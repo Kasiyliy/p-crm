@@ -21,3 +21,4 @@ from django.conf import settings
 urlpatterns = [
     path('', admin.site.urls),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+admin.site.site_header = 'Моё предприятие'
