@@ -47,7 +47,7 @@ class Client(models.Model):
 class Order(models.Model):
     created_at = models.DateTimeField(default=timezone.now, verbose_name='Создан')
     status = models.BooleanField(default=False, verbose_name='Принят')
-    vendor = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Вендор')
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Продавец')
     client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name='Клиент')
 
     def __str__(self):
@@ -67,9 +67,9 @@ class Order(models.Model):
 
 
 class OrderProduct(models.Model):
-    product = models.ForeignKey(Product, related_name='product_title', on_delete=models.CASCADE, verbose_name='Продукт')
-    quantity = models.PositiveIntegerField(verbose_name='Количество')
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name='Заказ')
+    product = models.ForeignKey(Product, related_name='product_title', on_delete=models.CASCADE, verbose_name='Продукт', blank=False)
+    quantity = models.PositiveIntegerField(verbose_name='Количество', blank=False)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name='Заказ', blank=False)
 
     def __str__(self):
         return '{}'.format(self.id)

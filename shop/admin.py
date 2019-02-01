@@ -1,5 +1,7 @@
 from django.contrib import admin
 from .models import Product, Category, Client, Order, OrderProduct
+from django.utils.html import format_html
+from django.core import serializers
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -38,7 +40,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_per_page = 10
     exclude = ('vendor',)
     search_fields = ('status',)
-    list_display = ['client', 'vendor', 'created_at', 'get_total_cost', 'status']
+    list_display = ['client', 'vendor', 'created_at', 'get_total_cost', 'status','actions_html']
     inlines = [OrderItemInline]
 
     def get_queryset(self, request):
@@ -52,6 +54,30 @@ class OrderAdmin(admin.ModelAdmin):
         if obj.id is None:
             obj.vendor = request.user
         super().save_model(request, obj, form, change)
+
+
+    def actions_html(self, obj):
+        client  = obj.client
+        vendor = obj.vendor
+        all =  OrderProduct.objects.filter(order = obj).all()
+        childs = []
+        for orderProduct in all:
+            childs.append(orderProduct.product)
+
+        childs = set(childs)
+
+        return format_html('<button class="button" type="button" onclick="activate_and_send_email({all} , {childs}, {vendor}, {client}, {order})">Печать</button>',
+                           all=serializers.serialize('json', all) , childs = serializers.serialize('json', childs),
+                           vendor= serializers.serialize('json', [vendor,]),client= serializers.serialize('json', [client,]),
+                           order = serializers.serialize('json', [obj,]))
+
+    class Media:
+        js = (
+            'js/user_admin.js',
+        )
+
+    actions_html.allow_tags = True
+    actions_html.short_description = "Печать"
 
 
 
